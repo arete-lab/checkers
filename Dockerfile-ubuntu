@@ -31,3 +31,7 @@ RUN apt-get install -y nodejs
 EXPOSE 1317 3000 4500 5000 26657
 
 WORKDIR /checkers
+
+COPY go.mod /checkers/go.mod
+RUN go mod download
+RUN rm /checkers/go.mod

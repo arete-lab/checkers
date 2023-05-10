@@ -9,6 +9,7 @@ import (
 	"github.com/alice/checkers/x/checkers/keeper"
 	"github.com/alice/checkers/x/checkers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -224,6 +225,9 @@ func TestCreateGameFarFuture(t *testing.T) {
 	msgSrvr, keeper, context := setupMsgServerCreateGame(t)
 	ctx := sdk.UnwrapSDKContext(context)
 	systemInfo, found := keeper.GetSystemInfo(ctx)
+	if !found {
+		sdkerrors.Wrapf(types.ErrGameNotFound, "game doesn't exist")
+	}
 	systemInfo.NextId = 1024
 	keeper.SetSystemInfo(ctx, systemInfo)
 	createResponse, err := msgSrvr.CreateGame(context, &types.MsgCreateGame{

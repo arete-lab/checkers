@@ -9,7 +9,6 @@ import (
 	"github.com/alice/checkers/x/checkers/keeper"
 	"github.com/alice/checkers/x/checkers/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -226,7 +225,7 @@ func TestCreateGameFarFuture(t *testing.T) {
 	ctx := sdk.UnwrapSDKContext(context)
 	systemInfo, found := keeper.GetSystemInfo(ctx)
 	if !found {
-		sdkerrors.Wrapf(types.ErrGameNotFound, "game doesn't exist")
+		panic("system info not found")
 	}
 	systemInfo.NextId = 1024
 	keeper.SetSystemInfo(ctx, systemInfo)
@@ -240,6 +239,9 @@ func TestCreateGameFarFuture(t *testing.T) {
 		GameIndex: "1024",
 	}, *createResponse)
 	systemInfo, found = keeper.GetSystemInfo(ctx)
+	if !found {
+		panic("system info not found")
+	}
 	require.True(t, found)
 	require.EqualValues(t, types.SystemInfo{
 		NextId: 1025,
@@ -253,4 +255,27 @@ func TestCreateGameFarFuture(t *testing.T) {
 		Black: bob,
 		Red:   carol,
 	}, game1)
+}
+
+func TestCreate1GameEmitted(t *testing.T) {
+	msgSrvr, _, context := setupMsgServerCreateGame(t)
+	msgSrvr.CreateGame(context, &types.MsgCreateGame{
+		Creator: alice,
+		Black:   bob,
+		Red:     carol,
+	})
+	ctx := sdk.UnwrapSDKContext(context)
+	require.NotNil(t, ctx)
+	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
+	require.Len(t, events, 1)
+	event := events[0]
+	require.EqualValues(t, sdk.StringEvent{
+		Type: "new-game-created",
+		Attributes: []sdk.Attribute{
+			{Key: "creator", Value: alice},
+			{Key: "game-index", Value: "1"},
+			{Key: "black", Value: bob},
+			{Key: "red", Value: carol},
+		},
+	}, event)
 }

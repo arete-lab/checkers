@@ -21,19 +21,3 @@ func TestMsgServer(t *testing.T) {
 	require.NotNil(t, msgServer)
 	require.NotNil(t, context)
 }
-
-// TODO: Need to modified since not working
-/*
-func TestMsgServer(t *testing.T) {
-	msgServer, context := setupMsgServer(t)
-	createResponse, err := msgServer.CreateGame(context, &types.MsgCreateGame{
-		Creator: alice,
-		Black:   bob,
-		Red:     carol,
-	})
-	require.Nil(t, err)
-	require.EqualValues(t, types.MsgCreateGameResponse{
-		GameIndex: "1",
-	}, *createResponse)
-}
-*/

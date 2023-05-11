@@ -20,11 +20,12 @@ func (k msgServer) CreateGame(goCtx context.Context, msg *types.MsgCreateGame) (
 	newIndex := strconv.FormatUint(systemInfo.NextId, 10)
 	newGame := rules.New()
 	storedGame := types.StoredGame{
-		Index: newIndex,
-		Board: newGame.String(),
-		Turn:  rules.PieceStrings[newGame.Turn],
-		Black: msg.Black,
-		Red:   msg.Red,
+		Index:  newIndex,
+		Board:  newGame.String(),
+		Turn:   rules.PieceStrings[newGame.Turn],
+		Black:  msg.Black,
+		Red:    msg.Red,
+		Winner: rules.PieceStrings[rules.NO_PLAYER],
 	}
 
 	err := storedGame.Validate()
